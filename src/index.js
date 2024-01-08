@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 const sgMail= require("@sendgrid/mail");
 const collection = require("./config");
 const multer = require('multer');
+require('dotenv').config();
 const app = express();
 app.listen(3000, () => {
   console.log("Port connected");
@@ -23,7 +24,7 @@ const generateOTP = () => {
 
 
 const sendEmailOTP = async (email, otp) => {
-  sgMail.setApiKey("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"); 
+  sgMail.setApiKey(process.env.API_KEY); 
 
   const msg = {
     to: email,

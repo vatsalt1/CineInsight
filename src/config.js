@@ -1,7 +1,8 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 let isDatabaseConnected = false;
 
-mongoose.connect('mongodb://localhost:27017/FootStat')
+mongoose.connect(process.env.MONGODB_URI)
   .then(async () => {
     console.log('Connected to Database');
 
