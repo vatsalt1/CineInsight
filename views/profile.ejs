@@ -1,0 +1,66 @@
+<!-- profile.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
+  <link rel="stylesheet" href="styles3.css">
+  <style>
+    h1{
+        background-color: #000000;
+        padding: 20px;
+        font-family: 'Arial', sans-serif;
+        font-size: 80px;
+        text-align: left;
+        color: white;
+    }
+    h3{
+        text-align: center;
+    }
+    h2 {
+      display: flex;
+      align-items: center;
+      margin-left: 50px;
+    }
+
+    .profile-picture {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-left: 1200px; 
+    }
+  </style>
+</head>
+<body>
+  <h1>User Profile</h1>
+
+  
+  <h2>Hello <%= user.name %>!
+  
+  <img class="profile-picture" src="/uploads/<%= username %>" alt="Profile Picture" onerror="this.src='https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg';">
+  </h2>
+  
+  <h3>Liked Movies</h3>
+  <% if (results.length > 0) { %>
+    <ul id="movieList">
+      <% results.forEach(result => { %>
+        <li>
+          <a href="/moviepage/<%= result.id %>">
+            <div class="like-button" data-movie-id="<%= result.id %>"></div>
+            <% if (result.primaryImage && result.primaryImage.url) { %>
+              <img src="<%= result.primaryImage.url %>" alt="<%= result.titleText.text %>">
+            <% } else { %>
+              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2McAndk1-OOgwHFOFDQa3zP9Bmc7xC2Vd6w&usqp=CAU" alt="Fallback Image">
+            <% } %>
+            <div class="title"><%= result.titleText.text %></div>
+          </a>
+        </li>
+      <% }); %>
+    </ul>
+  <% } else { %>
+    <h3>No liked movies available.</h3>
+  <% } %>
+</body>
+</html>

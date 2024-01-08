@@ -1,0 +1,55 @@
+<!-- search.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles3.css">
+  <title>Search Results</title>
+  <style>
+    
+    .fallback-image-container {
+      max-width: 500px; 
+      margin: auto; 
+    }
+
+    
+    .fallback-image {
+      background-color: transparent; 
+      width: 100%; 
+      height: auto; 
+      display: block; 
+    }
+  </style>
+</head>
+<body>
+  <header>CineInsight</header>
+  <main>
+    <ul id="movieList">
+      <% if (Array.isArray(results) && results.length > 0) { %>
+        <% results.forEach(movie => { %>
+          <li>
+            <a href="/moviepage/<%= movie.id %>">
+              <% if (movie.primaryImage && movie.primaryImage.url) { %>
+                <img src="<%= movie.primaryImage.url %>" alt="<%= movie.titleText.text %>">
+              <% } else { %>
+                <!-- Display the film clapperboard icon as the fallback image -->
+                <div class="fallback-image-container">
+                  <img class="fallback-image" src="https://previews.123rf.com/images/yupiramos/yupiramos1903/yupiramos190301165/124740559-film-clapperboard-icon-on-white-background-vector-illustration.jpg" alt="Fallback Image">
+                </div>
+              <% } %>
+              <div class="title"><%= movie.titleText.text %></div>
+            </a>
+          </li>
+        <% }); %>
+      <% } else { %>
+       
+        <div class="fallback-image-container">
+          <img class="fallback-image" src="/images/clipart1533013.png" alt="Fallback Image">
+        </div>
+      <% } %>
+    </ul>
+  </main>
+  
+</body>
+</html>

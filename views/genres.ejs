@@ -1,0 +1,225 @@
+<!-- genres.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles3.css">
+  <style>
+    .profile-icon-container {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+    }
+
+    .profile-icon {
+      width: 40px; 
+      height: 40px;
+      border-radius: 50%;
+    }
+    h3{
+        text-align: center;
+    }
+    
+  </style>
+  <title>CineInsight</title>
+</head>
+<body>
+  <header>
+    CineInsight
+  </header>
+  <div class="profile-icon-container">
+    <a href="/profile?username=<%= username %>">
+      <img class="profile-icon" src="https://p7.hiclipart.com/preview/722/101/213/computer-icons-user-profile-circle-abstract.jpg" alt="Profile Icon">
+    </a>
+  </div>
+  <main>
+    <form action="/filters" method="get">
+      <label for="genre">Genre:</label>
+      <select id="genre" name="genre">
+        <option value="undefined"></option>
+        <option value="Action">Action</option>
+        <option value="Adventure">Adventure</option>
+        <option value="Animation">Animation</option>
+        <option value="Biography">Biography</option>
+        <option value="Comedy">Comedy</option>
+        <option value="Crime">Crime</option>
+        <option value="Documentary">Documentary</option>
+        <option value="Drama">Drama</option>
+        <option value="Family">Family</option>
+        <option value="Fantasy">Fantasy</option>
+        <option value="Game-Show">Game Show</option>
+        <option value="History">History</option>
+        <option value="Horror">Horror</option>
+        <option value="Musical">Musical</option>
+        <option value="Music">Music</option>
+        <option value="Mystery">Mystery</option>
+        <option value="News">News</option>
+        <option value="Romance">Romance</option>
+        <option value="Sci-Fi">Sci-Fi</option>
+        <option value="Sport">Sport</option>
+        <option value="Thriller">Thriller</option>
+        <option value="War">War</option>
+        <option value="Western">Western</option>
+      </select>
+
+      <label for="year">Year:</label>
+      <input type="number" id="year" name="year" placeholder="Enter year">
+
+      <button type="submit" id="applyFiltersButton" disabled>Apply Filters</button>
+    </form>
+    <!-- Search form -->
+    <form action="/search" method="get">
+      <label for="search">Search by Title:</label>
+      <input type="text" id="search" name="query" placeholder="Enter movie title" oninput="enableSearchButton()">
+      <button type="submit" id="searchButton" disabled>Search</button>
+    </form>
+    <h3>This year's releases</h3>
+    <!-- Movie list -->
+    <ul id="movieList">
+      <% results.forEach(result => { %>
+        <li>
+          
+          <a href="/moviepage/<%= result.id %>">
+            <div class="like-button" data-movie-id="<%= result.id %>"></div>
+            <% if (result.primaryImage && result.primaryImage.url) { %>
+              <img src="<%= result.primaryImage.url %>" alt="<%= result.titleText.text %>">
+            <% } else { %>
+              <img src="https://previews.123rf.com/images/yupiramos/yupiramos1903/yupiramos190301165/124740559-film-clapperboard-icon-on-white-background-vector-illustration.jpg" alt="Fallback Image">
+            <% } %>
+            <div class="title"><%= result.titleText.text %></div>
+          </a>
+        </li>
+      <% }); %>
+    </ul>
+  </main>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+<script>
+
+$(document).on("click", "#applyFiltersButton", function () {
+    // Get selected filters and current page
+    const selectedGenre = $("#genre").val();
+    const selectedYear = $("#year").val();
+    const currentPage = $("body").data("current-page");
+
+    // Construct the URL with filters and current page
+    const url = `/filters?genre=${selectedGenre}&year=${selectedYear}&page=${currentPage}`;
+
+    // Redirect to the filters route
+    window.location.href = url;
+  });
+  let page = 2;
+let loading = false;
+let noMoreData = false;
+
+function loadMoreMovies() {
+  if (loading || noMoreData) {
+    return;
+  }
+
+  const year = new Date().getFullYear();
+  const container = $('#movieList');
+
+  loading = true;
+
+  $.get(`/api/genres?year=${year}&page=${page}`)
+    .done(data => {
+      console.log(data);
+      if (data && data.length > 0) {
+        data.forEach(result => {
+          const listItem = $('<li></li>');
+          const link1 = $(`<a href="/moviepage/${result.id}"></a>`);
+
+          const imgSrc = result.primaryImage && result.primaryImage.url ? result.primaryImage.url : 'https://previews.123rf.com/images/yupiramos/yupiramos1903/yupiramos190301165/124740559-film-clapperboard-icon-on-white-background-vector-illustration.jpg';
+
+          link1.append(`<img src="${imgSrc}" alt="${result.titleText.text}">`);
+          link1.append(`<div class="title">${result.titleText.text}</div>`);
+
+          listItem.append(link1);
+
+          container.append(listItem);
+        });
+
+        page++;
+      } else {
+        // No more data
+        noMoreData = true;
+        $(window).off('scroll', checkScroll);
+      }
+    })
+    .fail(error => {
+      console.error(error);
+    })
+    .always(() => {
+      loading = false;
+    });
+}
+
+function checkScroll() {
+  
+  const scrollDistanceFromBottom = $(document).height() - ($(window).scrollTop() + $(window).height());
+  console.log('Scroll distance from bottom:', scrollDistanceFromBottom);
+  
+  if (scrollDistanceFromBottom <= 200) {
+    loadMoreMovies();
+  }
+}
+
+
+loadMoreMovies();
+
+
+$(window).on('scroll', checkScroll);
+function handleLikeButtonClick(button) {
+    const movieId = $(button).data("movie-id");
+
+    $.post("/like-movie", { movieId })
+      .done(response => {
+        
+        console.log(response);
+
+        
+        $(button).css("background-color", "green");
+      })
+      .fail(error => {
+        
+        console.error(error);
+      });
+  }
+
+  
+  $(document).on("click", ".like-button", function () {
+    handleLikeButtonClick(this);
+  });
+
+  </script>
+</script>
+  <script>
+    function enableSearchButton() {
+      const searchInput = document.getElementById('search');
+      const searchButton = document.getElementById('searchButton');
+
+      // Enable the search button if there is any input in the search bar, otherwise disable it
+      searchButton.disabled = !searchInput.value.trim();
+    }
+    function enableApplyButton() {
+    const genreValue = document.getElementById("genre").value;
+    const yearValue = document.getElementById("year").value;
+    const applyButton = document.getElementById("applyFiltersButton");
+
+    // Enable the button if either genre or year is selected/entered
+    if (genreValue !== "undefined" || (yearValue && !isNaN(yearValue))) {
+      applyButton.removeAttribute("disabled");
+    } else {
+      applyButton.setAttribute("disabled", "disabled");
+    }
+  }
+
+  // Attach the function to the change event of the genre and year inputs
+  document.getElementById("genre").addEventListener("change", enableApplyButton);
+  document.getElementById("year").addEventListener("input", enableApplyButton);
+  </script>  
+</body>
+</html>

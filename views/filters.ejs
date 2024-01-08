@@ -1,0 +1,154 @@
+<!-- filters.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles3.css">
+  <title>Filtered Results</title>
+  <style>
+    h1 {
+      background-color: #000000;
+      padding: 20px;
+      font-family: 'Arial', sans-serif;
+      font-size: 80px;
+      text-align: left;
+      color: white;
+    }
+
+    
+    .fallback-image-container {
+      max-width: 500px; 
+      margin: auto; 
+    }
+
+   
+    .fallback-image {
+      background-color: transparent; 
+      width: 100%; 
+      height: auto; 
+      display: block; 
+    }
+  </style>
+</head>
+<body>
+  <h1>
+    Filtered Results
+  </h1>
+  <main>
+    
+    <ul id="movieList">
+      <% if (results.length > 0) { %>
+        <% results.forEach(result => { %>
+          <li>
+            <a href="/moviepage/<%= result.id %>">
+              <div class="like-button" data-movie-id="<%= result.id %>"></div>
+              <% if (result.primaryImage && result.primaryImage.url) { %>
+                <img src="<%= result.primaryImage.url %>" alt="<%= result.titleText.text %>">
+              <% } else { %>
+                <div class="fallback-image-container">
+                  <img class="fallback-image" src="https://previews.123rf.com/images/yupiramos/yupiramos1903/yupiramos190301165/124740559-film-clapperboard-icon-on-white-background-vector-illustration.jpg" alt="Fallback Image">
+                </div>
+              <% } %>
+              <div class="title"><%= result.titleText.text %></div>
+            </a>
+          </li>
+        <% }); %>
+      <% } else { %>
+        <!-- Display fallback image when no movies are shown -->
+        <div class="fallback-image-container">
+          <img class="fallback-image" src="/images/clipart1533013.png" alt="No Results Found">
+        </div>
+      <% } %>
+    </ul>
+  </main>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script>
+    function handleLikeButtonClick() {
+      const button = document.querySelector('.like-button');
+      const form = document.getElementById('likeForm'); // Get the form element
+
+      
+      button.textContent = button.textContent.includes('Like') ? 'Remove from Liked List' : 'Like this movie';
+
+      
+      $.ajax({
+        type: form.method,
+        url: form.action,
+        data: $(form).serialize(),
+        success: function (response) {
+          
+        },
+        error: function (error) {
+          // Handle error if needed
+          console.error(error);
+          
+          button.textContent = button.textContent.includes('Like') ? 'Like this movie' : 'Remove from Liked List';
+        },
+      });
+    }
+
+    let page = 2;
+    let loading = false;
+    let noMoreData = false;
+
+    function loadMoreMovies() {
+      if (loading || noMoreData) {
+        return;
+      }
+
+      const container = $('#movieList');
+
+      loading = true;
+
+      $.get(`/api/filters?page=${page}`)
+        .done(data => {
+          console.log(data);
+          if (data && data.length > 0) {
+            data.forEach(result => {
+              const listItem = $('<li></li>');
+              const link1 = $(`<a href="/moviepage/${result.id}"></a>`);
+
+              const imgSrc = result.primaryImage && result.primaryImage.url ? result.primaryImage.url : 'https://previews.123rf.com/images/yupiramos/yupiramos1903/yupiramos190301165/124740559-film-clapperboard-icon-on-white-background-vector-illustration.jpg';
+
+              link1.append(`<img class="fallback-image" src="${imgSrc}" alt="${result.titleText.text}">`);
+              link1.append(`<div class="title">${result.titleText.text}</div>`);
+
+              listItem.append(link1);
+
+              container.append(listItem);
+            });
+
+            page++;
+          } else {
+            // No more data
+            noMoreData = true;
+            $(window).off('scroll', checkScroll);
+          }
+        })
+        .fail(error => {
+          console.error(error);
+        })
+        .always(() => {
+          loading = false;
+        });
+    }
+
+    function checkScroll() {
+      // Calculate the distance from the bottom of the page
+      const scrollDistanceFromBottom = $(document).height() - ($(window).scrollTop() + $(window).height());
+      console.log('Scroll distance from bottom:', scrollDistanceFromBottom);
+
+      if (scrollDistanceFromBottom <= 200 && !loading && !noMoreData) {
+        loadMoreMovies();
+      }
+    }
+
+    // Initial load
+    loadMoreMovies();
+
+    // Check scroll event
+    $(window).on('scroll', checkScroll);
+  </script>
+</body>
+</html>

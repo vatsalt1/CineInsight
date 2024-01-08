@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Verify OTP</title>
+    
+    <!-- Add any additional styles or scripts as needed -->
+</head>
+
+<body>
+    <div class="container">
+        <h2>Verify OTP</h2>
+        <form action="/verify-otp" method="post">
+            <div>
+                <label for="enteredOTP">Enter OTP:</label>
+                <input type="text" id="enteredOTP" name="enteredOTP" required>
+            </div>
+            <input type="hidden" name="username" value="<%= username %>">
+            <input type="hidden" name="email" value="<%= email %>">
+            <input type="hidden" name="tempOtp" value="<%= tempOtp %>">
+            <input type="hidden" name="password" value="<%= password %>">
+            <!-- You may include other hidden fields as needed -->
+            <button type="submit">Verify</button>
+        </form>
+    </div>
+</body>
+
+</html>

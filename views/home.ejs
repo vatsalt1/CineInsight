@@ -1,0 +1,64 @@
+<!-- views/home.ejs -->
+
+<% const curYear = new Date().getFullYear(); %>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/styles1.css">
+  <title>CineInsight</title>
+</head>
+
+<body class="background-container">
+  <header>
+    CineInsight
+  </header>
+
+  <h1>
+    Welcome to CineInsight, a platform tailored for your film interests and everything cinematic!
+  </h1>
+
+  <h2>
+    Customize your search for your favourite movies using CineInsight to have a hassle-free and enjoyable experience! Like your favourite movies and view them in your personal collection!
+  </h2>
+
+  
+  <style>
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      
+    }
+  
+    .panel {
+      text-align: center;
+    }
+  </style>
+  
+  <div class="container">
+    <div class="panel" id="panelLink">
+      <p>
+        <span>Find your favourite movies in each genre with just one click!</span>
+      </p>
+    </div>
+  </div>
+    
+
+  <footer>
+    <p>Copyright@<%= curYear %></p>
+    <p>A website by Vatsal Tyagi</p>
+  </footer>
+
+</body>
+<script>
+  document.getElementById('panelLink').addEventListener('click', function() {
+    // Navigate to the subpage
+    window.location.href = '/genres';
+  });
+</script>
+
+</html>

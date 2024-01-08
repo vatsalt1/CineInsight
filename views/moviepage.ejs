@@ -1,0 +1,158 @@
+<!-- moviepage.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie Page</title>
+  
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #87CEFA;
+      color: #000;
+      margin: 0;
+      padding: 0;
+    }
+
+    main {
+      display: flex;
+      padding: 20px;
+    }
+  
+    #image-container {
+      flex: 1;
+    }
+  
+    #details-container {
+      flex: 1;
+      padding-left: 20px;
+    }
+  
+    div {
+      padding: 16px;
+      font-family: 'Times New Roman', Times, serif;
+      text-align: left;
+      font-size: 30px;
+      
+      color: #fff;
+      background-color: #87CEFA;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+  
+    div:hover {
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+    
+    img {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px 8px 0 0;
+    }
+    
+    header {
+      background-color: #000000; /* Deep Yellow */
+      padding: 20px;
+      font-family: "Algerian", sans-serif;
+      font-size: 100px;
+      text-align: center;
+      color:white;
+    }
+  </style>
+  
+</head>
+<body>
+  <script>
+    function getMonthName(monthNumber) {
+      const months = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+  
+      return months[monthNumber - 1] || "N/A";
+    }
+  </script>
+  <div>
+    <header>CineInsight</header>
+    <main>
+      <div id="image-container">
+        <% if (results.movieData.primaryImage && results.movieData.primaryImage.url) { %>
+          <img src="<%= results.movieData.primaryImage.url %>" alt="<%= results.movieData.titleText.text %>">
+        <% } else { %>
+          <img src="https://previews.123rf.com/images/yupiramos/yupiramos1903/yupiramos190301165/124740559-film-clapperboard-icon-on-white-background-vector-illustration.jpg" alt="Fallback Image">
+        <% } %>
+      </div>
+      <div id="details-container">
+        <!-- Display other details of the movie using <%= results.propertyName %> syntax -->
+        <% if (results.movieData) { %>
+          <% if (results.movieData.titleText && results.movieData.titleText.text) { %>
+          <div><strong>Title:</strong> <%= results.movieData.titleText.text %></div>
+          <% } %>
+          <% if (results.movieData.titleType && results.movieData.titleType.text) { %>
+          <div><strong>Title Type:</strong> <%= results.movieData.titleType.text %></div>
+          <% } %>
+          <% if (results.movieData.releaseYear && results.movieData.releaseYear.year) { %>
+          <div><strong>Release Year:</strong> <%= results.movieData.releaseYear.year %></div>
+          <% } %>
+        <% } %>
+        <% if (results.ratingsData) { %>
+          <% if (results.ratingsData.averageRating) { %>
+            <div><strong>Rating: </strong><%= results.ratingsData.averageRating %></div>
+          <% } else { %>
+            <div><strong>Rating: </strong>N/A</div>
+          <% } %>
+        <% } %>
+        <% if (results.movieData.releaseDate && results.movieData.releaseDate.day && results.movieData.releaseDate.month) { %>
+          <div><strong>Release Date: </strong><%= new Date(2000, results.movieData.releaseDate.month-1, results.movieData.releaseDate.day).toLocaleDateString('en-US', {month: 'long', day: 'numeric' }) %></div>
+        <% } else { %>
+          <div><strong>Release Date: </strong>N/A</div>
+          <% } %>
+        
+        <form id="likeForm" method="POST" action="/like-movie">
+          <input type="hidden" name="movieId" value="<%= results.movieData.id %>">
+          
+          <% if (results.isLiked) { %>
+            <!-- If the movie is liked, show the Remove from Liked List button -->
+            <button type="submit" class="like-button" data-movie-id="<%= results.movieData.id %>">
+
+              Remove from Liked List
+            </button>
+          <% } else { %>
+            <!-- If the movie is not liked, show the Like this movie button -->
+            <button type="submit" class="like-button" data-movie-id="<%= results.movieData.id %>">
+
+              Like this movie
+            </button>
+          <% } %>
+        </form>
+      </div>
+    </main>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script>
+    function handleLikeButtonClick() {
+      const button = document.querySelector('.like-button');
+      const form = document.getElementById('likeForm'); // Get the form element
+  
+      
+      button.textContent = button.textContent.includes('Like') ? 'Remove from Liked List' : 'Like this movie';
+  
+      
+      $.ajax({
+        type: form.method,
+        url: form.action,
+        data: $(form).serialize(),
+        success: function (response) {
+          
+        },
+        error: function (error) {
+          // Handle error if needed
+          console.error(error);
+          // If there's an error, revert the button text to its previous state
+          button.textContent = button.textContent.includes('Like') ? 'Like this movie' : 'Remove from Liked List';
+        },
+      });
+    }
+  </script>
+</body>
+</html>
